@@ -4,11 +4,13 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const { ObjectId } = require('mongodb'); // Import ObjectId
-const port = 2000;
+//const port = 2000;
+const port = process.env.PORT || 2000 ;
 
 
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const MongoURI = process.env.MONGODB_URI
 
 // Swagger set up
 const swaggerOptions = {
