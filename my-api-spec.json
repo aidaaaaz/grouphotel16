@@ -1,0 +1,365 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "My API",
+    "version": "1.0.0",
+    "description": "Description of my API"
+  },
+  "paths": {
+    "/registeradmin": {
+      "post": {
+        "summary": "Register a new admin account",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Admin registered successfully"
+          },
+          "400": {
+            "description": "Admin already exists"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Admin login",
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin authenticated successfully"
+          },
+          "401": {
+            "description": "Invalid username or password"
+          }
+        }
+      }
+    },
+    "/registervisitor": {
+      "post": {
+        "summary": "Register a new visitor",
+        "tags": [
+          "Visitor"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Visitor"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Visitor registered successfully"
+          },
+          "500": {
+            "description": "Error occurred while registering the visitor"
+          }
+        }
+      }
+    },
+    "/viewvisitor": {
+      "get": {
+        "summary": "View all visitors",
+        "tags": [
+          "Visitor"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all visitors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Visitor"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error occurred while fetching visitors"
+          }
+        }
+      }
+    },
+    "/issuevisitorpass": {
+      "post": {
+        "summary": "Issue a visitor pass",
+        "tags": [
+          "Pass"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "visitorId",
+                  "issuedBy",
+                  "validUntil"
+                ],
+                "properties": {
+                  "visitorId": {
+                    "type": "string"
+                  },
+                  "issuedBy": {
+                    "type": "string"
+                  },
+                  "validUntil": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Visitor pass issued successfully"
+          },
+          "500": {
+            "description": "Error occurred while issuing the pass"
+          }
+        }
+      }
+    },
+    "/retrievepass/{visitorId}": {
+      "get": {
+        "summary": "Retrieve a visitor pass",
+        "tags": [
+          "Pass"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "visitorId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The visitor ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Visitor pass details"
+          },
+          "404": {
+            "description": "No pass found for this visitor"
+          },
+          "500": {
+            "description": "Error occurred while retrieving the pass"
+          }
+        }
+      }
+    },
+    "/updatevisitor/{visitorId}": {
+      "patch": {
+        "summary": "Update visitor details",
+        "tags": [
+          "Visitor"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "visitorId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The visitor ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitorUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Visitor updated successfully"
+          },
+          "404": {
+            "description": "No visitor found with this ID"
+          },
+          "500": {
+            "description": "Error occurred while updating the visitor"
+          }
+        }
+      }
+    },
+    "/deletevisitor/{visitorId}": {
+      "delete": {
+        "summary": "Delete a visitor",
+        "tags": [
+          "Visitor"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "visitorId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The visitor ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Visitor deleted successfully"
+          },
+          "404": {
+            "description": "No visitor found with this ID"
+          },
+          "500": {
+            "description": "Error occurred while deleting the visitor"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Visitor": {
+        "type": "object",
+        "required": [
+          "Name",
+          "Age",
+          "Gender",
+          "Address",
+          "Zipcode",
+          "Relation"
+        ],
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer"
+          },
+          "Gender": {
+            "type": "string"
+          },
+          "Address": {
+            "type": "string"
+          },
+          "Zipcode": {
+            "type": "string"
+          },
+          "Relation": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitorUpdate": {
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer"
+          },
+          "Gender": {
+            "type": "string"
+          },
+          "Address": {
+            "type": "string"
+          },
+          "Zipcode": {
+            "type": "string"
+          },
+          "Relation": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
