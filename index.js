@@ -103,6 +103,28 @@ console.log(`Swagger specification saved to ${Desktop}`);
 //   next();
 // };
 
+// const verifyToken = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return res.status(403).json({ error: 'No token provided' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+//   try {
+//     const decoded = jwt.verify(token, secret);
+//     req.user = decoded;
+
+//     // Check if the user has the required role (admin or security)
+//     if (req.user.role !== 'admin' && req.user.role !== 'security') {
+//       return res.status(403).json({ error: 'Insufficient permissions' });
+//     }
+
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ error: 'Failed to authenticate token' });
+//   }
+// };
+
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -112,6 +134,7 @@ const verifyToken = (req, res, next) => {
   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
   try {
     const decoded = jwt.verify(token, secret);
+    console.log(decoded); // Log the decoded token payload
     req.user = decoded;
 
     // Check if the user has the required role (admin or security)
@@ -124,6 +147,7 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ error: 'Failed to authenticate token' });
   }
 };
+
 
 // // Middleware for verifying security personnel's token
 // const verifyTokenSecurity = (req, res, next) => {
@@ -265,6 +289,20 @@ app.use(express.json());
 
 
 // Admin Register New Account
+// app.post('/registeradmin', async (req, res) => {
+//   const admins = db.collection('admins');
+//   const { username, password } = req.body;
+
+//   const existingAdmin = await admins.findOne({ username });
+//   if (existingAdmin) {
+//     return res.status(400).json({ error: 'Admin already exists' });
+//   }
+
+//   await admins.insertOne({ username, password });
+//   res.status(201).json({ message: 'Admin registered successfully' });
+// });
+
+// Admin Register New Account
 app.post('/registeradmin', async (req, res) => {
   const admins = db.collection('admins');
   const { username, password } = req.body;
@@ -277,7 +315,6 @@ app.post('/registeradmin', async (req, res) => {
   await admins.insertOne({ username, password });
   res.status(201).json({ message: 'Admin registered successfully' });
 });
-
 
 
 /**
