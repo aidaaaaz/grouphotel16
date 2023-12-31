@@ -82,13 +82,30 @@ fs.writeFileSync(Desktop, swaggerJson); // Use 'swaggerYaml' for YAML
 console.log(`Swagger specification saved to ${Desktop}`);
 
 
-//middleware
+// //middleware for admin 
+// const verifyToken = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (authHeader && authHeader.startsWith('Bearer ')) {
+//     const token = authHeader.substring(7, authHeader.length); // "Bearer " is 7 characters
+//     //... (rest of your verification logic)
+//   } else {
+//     return res.status(403).json({ error: 'No token provided' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+//   try {
+//     const decoded = jwt.verify(token, secret);
+//     req.user = decoded;
+//   } catch (error) {
+//     return res.status(401).json({ error: 'Failed to authenticate token' });
+//   }
+
+//   next();
+// };
+
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7, authHeader.length); // "Bearer " is 7 characters
-    //... (rest of your verification logic)
-  } else {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(403).json({ error: 'No token provided' });
   }
 
@@ -96,11 +113,16 @@ const verifyToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, secret);
     req.user = decoded;
+
+    // Check if the user has the required role (admin or security)
+    if (req.user.role !== 'admin' && req.user.role !== 'security') {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    next();
   } catch (error) {
     return res.status(401).json({ error: 'Failed to authenticate token' });
   }
-
-  next();
 };
 
 
@@ -375,7 +397,7 @@ app.post('/loginsecurity', async (req, res) => {
  */
 
 
-// Protected route for registering a visitor - token required
+// Protected route for admin registering a visitor - token required
 app.post('/registervisitor', verifyToken, async (req, res) => {
   try {
     const visitors = db.collection('visitors');
@@ -383,6 +405,29 @@ app.post('/registervisitor', verifyToken, async (req, res) => {
 
     await visitors.insertOne({ username, password, Name, Age, Gender, Address, Zipcode, Relation });
     res.status(201).json({ message: 'Visitor registered successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while registering the visitor' });
+  }
+});
+
+// Security personnel register new visitor
+app.post('/registersecurityvisitor', verifyTokenSecurity, async (req, res) => {
+  try {
+    // Add logic to check if the requester is a valid security personnel
+    const securityCollection = db.collection('security');
+    const { username } = req.user; // Assuming you store username in the token payload
+
+    const validSecurity = await securityCollection.findOne({ username });
+
+    if (!validSecurity) {
+      return res.status(403).json({ error: 'Unauthorized. Not a valid security personnel.' });
+    }
+
+    const visitors = db.collection('visitors');
+    const { Name, Age, Gender, Address, Zipcode, Relation } = req.body;
+
+    await visitors.insertOne({ Name, Age, Gender, Address, Zipcode, Relation });
+    res.status(201).json({ message: 'Visitor registered successfully by security personnel' });
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while registering the visitor' });
   }
