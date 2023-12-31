@@ -127,14 +127,15 @@ console.log(`Swagger specification saved to ${Desktop}`);
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(403).json({ error: 'No token provided' });
   }
 
   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+
   try {
     const decoded = jwt.verify(token, secret);
-    console.log(decoded); // Log the decoded token payload
     req.user = decoded;
 
     // Check if the user has the required role (admin or security)
@@ -147,6 +148,7 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ error: 'Failed to authenticate token' });
   }
 };
+
 
 
 // // Middleware for verifying security personnel's token
@@ -346,6 +348,7 @@ app.post('/registeradmin', async (req, res) => {
 
 
 // Admin Login
+// Admin Login
 app.post('/login', async (req, res) => {
   const admins = db.collection('admins');
   const { username, password } = req.body;
@@ -356,11 +359,11 @@ app.post('/login', async (req, res) => {
   }
 
   // Create token if the admin was found
-  const token = jwt.sign({ userId: admin._id }, secret, { expiresIn: '1h' });
+  const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
 
-  res.json({ message: 'Admin authenticated successfully', 
-  accessToken: token });
+  res.json({ message: 'Admin authenticated successfully', accessToken: token });
 });
+
 
 
 /**
