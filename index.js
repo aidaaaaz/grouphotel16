@@ -125,7 +125,29 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Middleware for verifying security personnel's token
+// // Middleware for verifying security personnel's token
+// const verifyTokenSecurity = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return res.status(403).json({ error: 'No token provided' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+//   try {
+//     const decoded = jwt.verify(token, secret);
+//     req.user = decoded;
+
+//     // Check if the user has the required role (security)
+//     if (req.user.role !== 'security') {
+//       return res.status(403).json({ error: 'Insufficient permissions' });
+//     }
+
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ error: 'Failed to authenticate token' });
+//   }
+// };
+
 const verifyTokenSecurity = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -135,6 +157,7 @@ const verifyTokenSecurity = (req, res, next) => {
   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
   try {
     const decoded = jwt.verify(token, secret);
+    console.log(decoded); // Log the decoded token payload
     req.user = decoded;
 
     // Check if the user has the required role (security)
@@ -147,6 +170,7 @@ const verifyTokenSecurity = (req, res, next) => {
     return res.status(401).json({ error: 'Failed to authenticate token' });
   }
 };
+
 
 // Secret key for JWT signing and encryption
 const secret = 'your-secret-key'; // Store this securely
@@ -380,6 +404,22 @@ app.post('/registersecurity', async (req, res) => {
  *         description: Invalid username or password
  */
 
+// // Security Login
+// app.post('/loginsecurity', async (req, res) => {
+//   const securityCollection = db.collection('security');
+//   const { username, password } = req.body;
+
+//   const security = await securityCollection.findOne({ username, password });
+//   if (!security) {
+//     return res.status(401).json({ error: 'Invalid username or password' });
+//   }
+
+//   // Create token if the security personnel was found
+//   const token = jwt.sign({ userId: security._id }, secret, { expiresIn: '1h' });
+
+//   res.json({ message: 'Security authenticated successfully', accessToken: token });
+// });
+
 // Security Login
 app.post('/loginsecurity', async (req, res) => {
   const securityCollection = db.collection('security');
@@ -391,11 +431,10 @@ app.post('/loginsecurity', async (req, res) => {
   }
 
   // Create token if the security personnel was found
-  const token = jwt.sign({ userId: security._id }, secret, { expiresIn: '1h' });
+  const token = jwt.sign({ userId: security._id, role: 'security' }, secret, { expiresIn: '1h' });
 
   res.json({ message: 'Security authenticated successfully', accessToken: token });
 });
-
 
 /**
  * @swagger
@@ -526,6 +565,27 @@ app.get('/viewvisitor', verifyToken, async (req, res) => {
 
 // Admin issue visitor pass
 // Admin Issue Visitor Pass
+// app.post('/issuevisitorpass', verifyToken, async (req, res) => {
+//   const { visitorId, issuedBy, validUntil } = req.body;
+
+//   try {
+//     const visitorPasses = db.collection('visitorpasses');
+
+//     const newPass = {
+//       visitorId,
+//       issuedBy,
+//       validUntil,
+//       issuedAt: new Date(),
+//     };
+
+//     await visitorPasses.insertOne(newPass);
+//     res.status(201).json({ message: 'Visitor pass issued successfully' });
+//   } catch (error) {
+//     console.error('Issue Pass Error:', error.message);
+//     res.status(500).json({ error: 'An error occurred while issuing the pass', details: error.message });
+//   }
+// });
+// Admin issue visitor pass
 app.post('/issuevisitorpass', verifyToken, async (req, res) => {
   const { visitorId, issuedBy, validUntil } = req.body;
 
