@@ -125,6 +125,28 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Middleware for verifying security personnel's token
+const verifyTokenSecurity = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(403).json({ error: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+  try {
+    const decoded = jwt.verify(token, secret);
+    req.user = decoded;
+
+    // Check if the user has the required role (security)
+    if (req.user.role !== 'security') {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Failed to authenticate token' });
+  }
+};
 
 // Secret key for JWT signing and encryption
 const secret = 'your-secret-key'; // Store this securely
