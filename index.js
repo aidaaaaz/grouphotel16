@@ -67,8 +67,6 @@ const swaggerSpec = swaggerJSDoc(options);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-
-
 const fs = require('fs');
 
 // Convert the Swagger specification to JSON or YAML format (choose one)
@@ -137,7 +135,7 @@ run().catch(console.dir);
 let db;
 let Visitorregistration;
 let adminuser;
-
+let securityCollection; 
 
 
 // Connect to MongoDB and initialize collections
@@ -150,6 +148,9 @@ client.connect()
   // Initialize collections after establishing the connection
   Visitorregistration = db.collection('visitors');
   adminuser = db.collection('admins');
+  // Add this within the `run` function where you initialize collections
+  securityCollection = db.collection('security');
+
 
 
   // Now you can safely start your server here, after the DB connection is established
@@ -162,6 +163,7 @@ client.connect()
 // In-memory data storage (replace with a database in production)
 const visitors = [];
 const admins = [];
+const security = [];
 
 app.use(express.json());
 
@@ -209,6 +211,7 @@ app.post('/registeradmin', async (req, res) => {
 });
 
 
+
 /**
  * @swagger
  * /login:
@@ -252,6 +255,63 @@ app.post('/login', async (req, res) => {
 
   res.json({ message: 'Admin authenticated successfully', 
   accessToken: token });
+});
+
+
+/**
+ * @swagger
+ * /registersecurity:
+ *   post:
+ *     summary: Register a new admin account
+ *     tags: [Security]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Security registered successfully
+ *       400:
+ *         description: Security already exists
+ */
+
+
+// // Security Register New Account
+// app.post('/registersecurity', async (req, res) => {
+//   const security = db.collection('security');
+//   const { username, password } = req.body;
+
+//   const existingAdmin = await admins.findOne({ username });
+//   if (existingAdmin) {
+//     return res.status(400).json({ error: 'Admin already exists' });
+//   }
+
+//   await admins.insertOne({ username, password });
+//   res.status(201).json({ message: 'Admin registered successfully' });
+// });
+
+// Security Register New Account
+app.post('/registersecurity', async (req, res) => {
+  const securityCollection = db.collection('security');
+  const { username, password } = req.body;
+
+  const existingSecurity = await securityCollection.findOne({ username });
+  if (existingSecurity) {
+    return res.status(400).json({ error: 'Security already exists' });
+  }
+
+  await securityCollection.insertOne({ username, password });
+  res.status(201).json({ message: 'Security registered successfully' });
 });
 
 
