@@ -286,20 +286,6 @@ app.post('/login', async (req, res) => {
  */
 
 
-// // Security Register New Account
-// app.post('/registersecurity', async (req, res) => {
-//   const security = db.collection('security');
-//   const { username, password } = req.body;
-
-//   const existingAdmin = await admins.findOne({ username });
-//   if (existingAdmin) {
-//     return res.status(400).json({ error: 'Admin already exists' });
-//   }
-
-//   await admins.insertOne({ username, password });
-//   res.status(201).json({ message: 'Admin registered successfully' });
-// });
-
 // Security Register New Account
 app.post('/registersecurity', async (req, res) => {
   const securityCollection = db.collection('security');
@@ -312,6 +298,58 @@ app.post('/registersecurity', async (req, res) => {
 
   await securityCollection.insertOne({ username, password });
   res.status(201).json({ message: 'Security registered successfully' });
+});
+
+/**
+ * @swagger
+ * /loginsecurity:
+ *   post:
+ *     summary: Security login
+ *     tags: [Security]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Security authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 accessToken:
+ *                   type: string
+ *       401:
+ *         description: Invalid username or password
+ */
+
+// Security Login
+app.post('/loginsecurity', async (req, res) => {
+  const securityCollection = db.collection('security');
+  const { username, password } = req.body;
+
+  const security = await securityCollection.findOne({ username, password });
+  if (!security) {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+
+  // Create token if the security personnel was found
+  const token = jwt.sign({ userId: security._id }, secret, { expiresIn: '1h' });
+
+  res.json({ message: 'Security authenticated successfully', accessToken: token });
 });
 
 
