@@ -100,6 +100,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Set up middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 //app.set('view engine', 'ejs');
+//app.set('view engine', 'ejs');
+// Update the views directory path
+app.set('views', 'C:/Users/VAIO/Desktop/grouphotel16/view');
+
+// Set the view engine to EJS
 app.set('view engine', 'ejs');
 
 // ... (your existing code)
