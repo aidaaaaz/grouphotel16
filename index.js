@@ -341,6 +341,15 @@ app.post('/registeradmin', async (req, res) => {
  *         description: Invalid username or password
  */
 
+// // Serve the admin login page
+// app.get('/admin/login', (req, res) => {
+//   res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
+// });
+
+app.get('/admin/login', (req, res) => {
+  res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
+});
+
 // Admin login
 app.post('/admin/login', async (req, res) => {
   const admins = db.collection('admins');
