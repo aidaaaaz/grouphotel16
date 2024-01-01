@@ -13,6 +13,53 @@ const swaggerUi = require('swagger-ui-express');
 const MongoURI = process.env.MONGODB_URI
 
 // Swagger set up
+// const swaggerOptions = {
+//   definition: {
+//     openapi: '3.0.0',
+//     info: {
+//       title: 'Hostel Visitor Management API',
+//       version: '1.0.0',
+//       description: 'This is a simple CRUD API application made with Express and documented with Swagger',
+//     },
+//     servers: [
+//       {
+//         url: 'https://hotel16.azurewebsites.net',
+//       },
+//     ],
+    
+//     components: {
+//       securitySchemes: {
+//         jwt:{
+// 					type: 'http',
+// 					scheme: 'bearer',
+// 					in: "header",
+// 					bearerFormat: 'JWT'
+//         },
+//       },
+//     },
+// 		security:[{
+// 			"jwt": []
+//   }]
+// },
+//   apis: ['./index.js'], // path to your API routes
+
+// };
+
+// const swaggerJSDoc = require('swagger-jsdoc');
+
+// // Define your options object first
+// const options = {
+//   definition: {
+//     openapi: '3.0.0',
+//     info: {
+//       title: 'My API',
+//       version: '1.0.0',
+//       description: 'Description of my API',
+//     },
+//   },
+//   apis: ['./index.js'], // Specify the paths to your route files
+// };
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -26,43 +73,35 @@ const swaggerOptions = {
         url: 'https://hotel16.azurewebsites.net',
       },
     ],
-    
     components: {
       securitySchemes: {
-        jwt:{
-					type: 'http',
-					scheme: 'bearer',
-					in: "header",
-					bearerFormat: 'JWT'
+        jwt: {
+          type: 'http',
+          scheme: 'bearer',
+          in: 'header',
+          bearerFormat: 'JWT',
         },
       },
     },
-		security:[{
-			"jwt": []
-  }]
-},
+    security: [{
+      jwt: [],
+    }],
+  },
   apis: ['./index.js'], // path to your API routes
-
 };
 
 const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
-// Define your options object first
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'My API',
-      version: '1.0.0',
-      description: 'Description of my API',
-    },
-  },
-  apis: ['./index.js'], // Specify the paths to your route files
-};
+// Serve Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// ... (your existing code)
+
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 
 // Now, you can use the options object to generate the swaggerSpec
-const swaggerSpec = swaggerJSDoc(options);
+//const swaggerSpec = swaggerJSDoc(options);
 //app.use('./index.js', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
@@ -80,50 +119,6 @@ const Desktop = 'my-api-spec.json'; // Change the file extension to '.yaml' for 
 fs.writeFileSync(Desktop, swaggerJson); // Use 'swaggerYaml' for YAML
 
 console.log(`Swagger specification saved to ${Desktop}`);
-
-
-// //middleware for admin 
-// const verifyToken = (req, res, next) => {
-//   const authHeader = req.headers.authorization;
-//   if (authHeader && authHeader.startsWith('Bearer ')) {
-//     const token = authHeader.substring(7, authHeader.length); // "Bearer " is 7 characters
-//     //... (rest of your verification logic)
-//   } else {
-//     return res.status(403).json({ error: 'No token provided' });
-//   }
-
-//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
-//   try {
-//     const decoded = jwt.verify(token, secret);
-//     req.user = decoded;
-//   } catch (error) {
-//     return res.status(401).json({ error: 'Failed to authenticate token' });
-//   }
-
-//   next();
-// };
-
-// const verifyToken = (req, res, next) => {
-//   const authHeader = req.headers.authorization;
-//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-//     return res.status(403).json({ error: 'No token provided' });
-//   }
-
-//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
-//   try {
-//     const decoded = jwt.verify(token, secret);
-//     req.user = decoded;
-
-//     // Check if the user has the required role (admin or security)
-//     if (req.user.role !== 'admin' && req.user.role !== 'security') {
-//       return res.status(403).json({ error: 'Insufficient permissions' });
-//     }
-
-//     next();
-//   } catch (error) {
-//     return res.status(401).json({ error: 'Failed to authenticate token' });
-//   }
-// };
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -149,30 +144,6 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-
-
-// // Middleware for verifying security personnel's token
-// const verifyTokenSecurity = (req, res, next) => {
-//   const authHeader = req.headers.authorization;
-//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-//     return res.status(403).json({ error: 'No token provided' });
-//   }
-
-//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
-//   try {
-//     const decoded = jwt.verify(token, secret);
-//     req.user = decoded;
-
-//     // Check if the user has the required role (security)
-//     if (req.user.role !== 'security') {
-//       return res.status(403).json({ error: 'Insufficient permissions' });
-//     }
-
-//     next();
-//   } catch (error) {
-//     return res.status(401).json({ error: 'Failed to authenticate token' });
-//   }
-// };
 
 const verifyTokenSecurity = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -291,20 +262,6 @@ app.use(express.json());
 
 
 // Admin Register New Account
-// app.post('/registeradmin', async (req, res) => {
-//   const admins = db.collection('admins');
-//   const { username, password } = req.body;
-
-//   const existingAdmin = await admins.findOne({ username });
-//   if (existingAdmin) {
-//     return res.status(400).json({ error: 'Admin already exists' });
-//   }
-
-//   await admins.insertOne({ username, password });
-//   res.status(201).json({ message: 'Admin registered successfully' });
-// });
-
-// Admin Register New Account
 app.post('/registeradmin', async (req, res) => {
   const admins = db.collection('admins');
   const { username, password } = req.body;
@@ -317,11 +274,9 @@ app.post('/registeradmin', async (req, res) => {
   await admins.insertOne({ username, password });
   res.status(201).json({ message: 'Admin registered successfully' });
 });
-
-
 /**
  * @swagger
- * /login:
+ * /admin/login:
  *   post:
  *     summary: Admin login
  *     tags: [Admin]
@@ -342,14 +297,19 @@ app.post('/registeradmin', async (req, res) => {
  *     responses:
  *       200:
  *         description: Admin authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 accessToken:
+ *                   type: string
  *       401:
  *         description: Invalid username or password
  */
-
-
-// Admin Login
-// Admin Login
-app.post('/login', async (req, res) => {
+app.post('/admin/login', async (req, res) => {
   const admins = db.collection('admins');
   const { username, password } = req.body;
 
@@ -363,6 +323,82 @@ app.post('/login', async (req, res) => {
 
   res.json({ message: 'Admin authenticated successfully', accessToken: token });
 });
+
+// ... (your existing code)
+
+// /**
+//  * @swagger
+//  * /login:
+//  *   post:
+//  *     summary: Admin login
+//  *     tags: [Admin]
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             required:
+//  *               - username
+//  *               - password
+//  *             properties:
+//  *               username:
+//  *                 type: string
+//  *               password:
+//  *                 type: string
+//  *     responses:
+//  *       200:
+//  *         description: Admin authenticated successfully
+//  *       401:
+//  *         description: Invalid username or password
+//  */
+
+// // index.js
+
+// // ... (your existing code)
+
+// // Routes
+// app.get('/', (req, res) => {
+//   res.render('login');
+// });
+
+// // Admin login page
+// app.get('/admin/login', (req, res) => {
+//   res.render('admin-login');
+// });
+
+// app.post('/admin/login', async (req, res) => {
+//   const admins = db.collection('admins');
+//   const { username, password } = req.body;
+
+//   const admin = await admins.findOne({ username, password });
+//   if (!admin) {
+//     return res.status(401).json({ error: 'Invalid username or password' });
+//   }
+
+//   // Create token if the admin was found
+//   const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
+
+//   res.json({ message: 'Admin authenticated successfully', accessToken: token });
+// });
+
+// ... (your existing code)
+
+// // Admin Login
+// app.post('/login', async (req, res) => {
+//   const admins = db.collection('admins');
+//   const { username, password } = req.body;
+
+//   const admin = await admins.findOne({ username, password });
+//   if (!admin) {
+//     return res.status(401).json({ error: 'Invalid username or password' });
+//   }
+
+//   // Create token if the admin was found
+//   const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
+
+//   res.json({ message: 'Admin authenticated successfully', accessToken: token });
+// });
 
 
 
@@ -444,21 +480,6 @@ app.post('/registersecurity', async (req, res) => {
  *         description: Invalid username or password
  */
 
-// // Security Login
-// app.post('/loginsecurity', async (req, res) => {
-//   const securityCollection = db.collection('security');
-//   const { username, password } = req.body;
-
-//   const security = await securityCollection.findOne({ username, password });
-//   if (!security) {
-//     return res.status(401).json({ error: 'Invalid username or password' });
-//   }
-
-//   // Create token if the security personnel was found
-//   const token = jwt.sign({ userId: security._id }, secret, { expiresIn: '1h' });
-
-//   res.json({ message: 'Security authenticated successfully', accessToken: token });
-// });
 
 // Security Login
 app.post('/loginsecurity', async (req, res) => {
@@ -603,28 +624,7 @@ app.get('/viewvisitor', verifyToken, async (req, res) => {
  */
 
 
-// Admin issue visitor pass
-// Admin Issue Visitor Pass
-// app.post('/issuevisitorpass', verifyToken, async (req, res) => {
-//   const { visitorId, issuedBy, validUntil } = req.body;
 
-//   try {
-//     const visitorPasses = db.collection('visitorpasses');
-
-//     const newPass = {
-//       visitorId,
-//       issuedBy,
-//       validUntil,
-//       issuedAt: new Date(),
-//     };
-
-//     await visitorPasses.insertOne(newPass);
-//     res.status(201).json({ message: 'Visitor pass issued successfully' });
-//   } catch (error) {
-//     console.error('Issue Pass Error:', error.message);
-//     res.status(500).json({ error: 'An error occurred while issuing the pass', details: error.message });
-//   }
-// });
 // Admin issue visitor pass
 app.post('/issuevisitorpass', verifyToken, async (req, res) => {
   const { visitorId, issuedBy, validUntil } = req.body;

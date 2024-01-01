@@ -1,10 +1,91 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "My API",
+    "title": "Hostel Visitor Management API",
     "version": "1.0.0",
-    "description": "Description of my API"
+    "description": "This is a simple CRUD API application made with Express and documented with Swagger"
   },
+  "servers": [
+    {
+      "url": "https://hotel16.azurewebsites.net"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "in": "header",
+        "bearerFormat": "JWT"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Visitor": {
+        "type": "object",
+        "required": [
+          "Name",
+          "Age",
+          "Gender",
+          "Address",
+          "Zipcode",
+          "Relation"
+        ],
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer"
+          },
+          "Gender": {
+            "type": "string"
+          },
+          "Address": {
+            "type": "string"
+          },
+          "Zipcode": {
+            "type": "string"
+          },
+          "Relation": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitorUpdate": {
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer"
+          },
+          "Gender": {
+            "type": "string"
+          },
+          "Address": {
+            "type": "string"
+          },
+          "Zipcode": {
+            "type": "string"
+          },
+          "Relation": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "jwt": []
+    }
+  ],
   "paths": {
     "/registeradmin": {
       "post": {
@@ -44,7 +125,7 @@
         }
       }
     },
-    "/login": {
+    "/admin/login": {
       "post": {
         "summary": "Admin login",
         "tags": [
@@ -74,7 +155,22 @@
         },
         "responses": {
           "200": {
-            "description": "Admin authenticated successfully"
+            "description": "Admin authenticated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "accessToken": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "Invalid username or password"
@@ -389,71 +485,6 @@
           },
           "500": {
             "description": "Error occurred while deleting the visitor"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
-    },
-    "schemas": {
-      "Visitor": {
-        "type": "object",
-        "required": [
-          "Name",
-          "Age",
-          "Gender",
-          "Address",
-          "Zipcode",
-          "Relation"
-        ],
-        "properties": {
-          "Name": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer"
-          },
-          "Gender": {
-            "type": "string"
-          },
-          "Address": {
-            "type": "string"
-          },
-          "Zipcode": {
-            "type": "string"
-          },
-          "Relation": {
-            "type": "string"
-          }
-        }
-      },
-      "VisitorUpdate": {
-        "type": "object",
-        "properties": {
-          "Name": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer"
-          },
-          "Gender": {
-            "type": "string"
-          },
-          "Address": {
-            "type": "string"
-          },
-          "Zipcode": {
-            "type": "string"
-          },
-          "Relation": {
-            "type": "string"
           }
         }
       }
