@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+//const { MongoClient, ServerApiVersion } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const { ObjectId } = require('mongodb'); // Import ObjectId
 //const port = 2000;
 const port = process.env.PORT || 2000 ;
+const ejs = require('ejs');
 
 
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -96,6 +97,10 @@ const swaggerSpec = swaggerJSDoc(swaggerOptions);
 // Serve Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Set up middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
+
 // ... (your existing code)
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
@@ -170,33 +175,59 @@ const verifyTokenSecurity = (req, res, next) => {
 
 
 // Secret key for JWT signing and encryption
-const secret = 'your-secret-key'; // Store this securely
+//const secret = 'your-secret-key'; // Store this securely
 
 app.use(bodyParser.json());
 
+// MongoDB connection setup
+//const uri = "your-mongodb-uri";
+
+const secret = 'your-secret-key'; // Store this securely
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+// Import necessary modules once at the top of your file
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
+// Other imports...
 
 const uri = "mongodb+srv://aidazainuddin4499:TEST123@cluster0.npqrvz0.mongodb.net/";
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Swagger setup and other code...
+
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    // Connect the client to the server (optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("Hostel_Visitor_Management").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    //await client.close();
+    // await client.close();
   }
 }
+
+// Swagger setup and other code...
+
 run().catch(console.dir);
+
+// Connect to MongoDB and initialize collections
+client.connect()
+  .then(() => {
+    console.log('Connected to MongoDB');
+    db = client.db('your-database-name');
+  })
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// Serve the admin login page
+app.get('/admin/login', (req, res) => {
+  res.sendFile(__dirname + '/admin-login.html');
+});
+
+
+
 let db;
 let Visitorregistration;
 let adminuser;
@@ -309,20 +340,53 @@ app.post('/registeradmin', async (req, res) => {
  *       401:
  *         description: Invalid username or password
  */
+
+// Admin login
 app.post('/admin/login', async (req, res) => {
   const admins = db.collection('admins');
   const { username, password } = req.body;
 
-  const admin = await admins.findOne({ username, password });
-  if (!admin) {
-    return res.status(401).json({ error: 'Invalid username or password' });
+  try {
+    const admin = await admins.findOne({ username, password });
+
+    if (!admin) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Create token if the admin was found
+    const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
+
+    res.json({ message: 'Admin authenticated successfully', accessToken: token });
+  } catch (error) {
+    console.error('Admin authentication error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-
-  // Create token if the admin was found
-  const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
-
-  res.json({ message: 'Admin authenticated successfully', accessToken: token });
 });
+// Dummy user data (replace with a proper authentication system)
+// const users = [
+//   { username: 'user1', password: 'password1' },
+//   { username: 'user2', password: 'password2' },
+// ];
+
+// // Routes
+// app.get('/', (req, res) => {
+//   res.render('login');
+// });
+
+// app.post('/admin/login', async (req, res) => {
+//   const admins = db.collection('admins');
+//   const { username, password } = req.body;
+
+//   const admin = await admins.findOne({ username, password });
+//   if (!admin) {
+//     return res.status(401).json({ error: 'Invalid username or password' });
+//   }
+
+//   // Create token if the admin was found
+//   const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
+
+//   res.json({ message: 'Admin authenticated successfully', accessToken: token });
+// });
 
 // ... (your existing code)
 
