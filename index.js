@@ -99,6 +99,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Set up middleware
 app.use(bodyParser.urlencoded({ extended: true }));
+//app.set('view engine', 'ejs');
 app.set('view engine', 'ejs');
 
 // ... (your existing code)
@@ -221,10 +222,10 @@ client.connect()
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Serve the admin login page
-app.get('/admin/login', (req, res) => {
-  res.sendFile(__dirname + '/admin-login.html');
-});
+// // Serve the admin login page
+// app.get('/admin/login', (req, res) => {
+//   res.sendFile(__dirname + '/admin-login.html');
+// });
 
 
 
@@ -345,10 +346,18 @@ app.post('/registeradmin', async (req, res) => {
 // app.get('/admin/login', (req, res) => {
 //   res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
 // });
+// Redirect to login page when accessing the root route
 
+app.get('/', (req, res) => {
+  res.redirect('/admin/login');
+});
+
+// Serve the admin login page
 app.get('/admin/login', (req, res) => {
   res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
 });
+
+
 
 // Admin login
 app.post('/admin/login', async (req, res) => {
