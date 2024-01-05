@@ -59,7 +59,6 @@ console.log('Views directory:', path.join(__dirname, 'C:\Users\VAIO\Desktop\grou
 
 // app.set('views', path.join(__dirname, ''));
 app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
-app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
@@ -92,7 +91,7 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
 
     // Check if the user has the required role (admin or security)
-    if (req.user.role !== 'admin' && req.user.role !== 'security') {
+    if (req.user.role !== 'host' && req.user.role !== 'security') {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
 
@@ -127,13 +126,10 @@ const verifyTokenSecurity = (req, res, next) => {
 };
 
 
-// Secret key for JWT signing and encryption
-//const secret = 'your-secret-key'; // Store this securely
 
 app.use(bodyParser.json());
 
 // MongoDB connection setup
-//const uri = "your-mongodb-uri";
 
 const secret = 'your-secret-key'; // Store this securely
 
@@ -176,7 +172,8 @@ client.connect()
 
 let db;
 let Visitorregistration;
-let adminuser;
+//let adminuser;
+let hostuser;
 let securityCollection; 
 
 
@@ -189,7 +186,7 @@ client.connect()
 
   // Initialize collections after establishing the connection
   Visitorregistration = db.collection('visitors');
-  adminuser = db.collection('admins');
+  adminuser = db.collection('hosts');
   // Add this within the `run` function where you initialize collections
   securityCollection = db.collection('security');
 
@@ -204,7 +201,8 @@ client.connect()
 
 // In-memory data storage (replace with a database in production)
 const visitors = [];
-const admins = [];
+//const admins = [];
+const hosts = [];
 const security = [];
 
 app.use(express.json());
@@ -212,10 +210,10 @@ app.use(express.json());
 
 /**
  * @swagger
- * /registeradmin:
+ * /registerhost:
  *   post:
- *     summary: Register a new admin account
- *     tags: [Admin]
+ *     summary: Register a new host account
+ *     tags: [Host]
  *     requestBody:
  *       required: true
  *       content:
@@ -232,31 +230,42 @@ app.use(express.json());
  *                 type: string
  *     responses:
  *       201:
- *         description: Admin registered successfully
+ *         description: Host registered successfully
  *       400:
- *         description: Admin already exists
+ *         description: Host already exists
  */
 
-
-// Admin Register New Account
-app.post('/registeradmin', async (req, res) => {
-  const admins = db.collection('admins');
+// Host Register New Account
+app.post('/registerhost', async (req, res) => {
+  const hosts = db.collection('hosts');
   const { username, password } = req.body;
 
-  const existingAdmin = await admins.findOne({ username });
-  if (existingAdmin) {
-    return res.status(400).json({ error: 'Admin already exists' });
+  const existingHost = await hosts.findOne({ username });
+  if (existingHost) {
+    return res.status(400).json({ error: 'Host already exists' });
   }
 
-  await admins.insertOne({ username, password });
-  res.status(201).json({ message: 'Admin registered successfully' });
+  await hosts.insertOne({ username, password });
+  res.status(201).json({ message: 'Host registered successfully' });
 });
+
+
+// Serve the admin login page
+app.get('/login', (req, res) => {
+  res.render('login'); // Assuming 'admin-login.ejs' is in the 'views' folder
+});
+
+// Serve the login page
+app.get('/login', (req, res) => {
+  res.render('login'); // Assuming 'login.ejs' is in the 'views' folder
+});
+
 /**
  * @swagger
- * /admin/login:
+ * /host/login:
  *   post:
- *     summary: Admin login
- *     tags: [Admin]
+ *     summary: Host login
+ *     tags: [Host]
  *     requestBody:
  *       required: true
  *       content:
@@ -273,7 +282,7 @@ app.post('/registeradmin', async (req, res) => {
  *                 type: string
  *     responses:
  *       200:
- *         description: Admin authenticated successfully
+ *         description: Host authenticated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -287,150 +296,27 @@ app.post('/registeradmin', async (req, res) => {
  *         description: Invalid username or password
  */
 
-
-
-
-// Serve the admin login page
-app.get('/login', (req, res) => {
-  res.render('login'); // Assuming 'admin-login.ejs' is in the 'views' folder
-});
-
-// Serve the login page
-app.get('/login', (req, res) => {
-  res.render('login'); // Assuming 'login.ejs' is in the 'views' folder
-});
-
-// app.get('/', (req, res) => {
-//   res.redirect('/login');
-// });
-
-// app.get('/', (req, res) => {
-//   res.redirect('/login');
-// });
-
-// Admin login
-app.post('/admin/login', async (req, res) => {
-  const admins = db.collection('admins');
+// Host login
+app.post('/host/login', async (req, res) => {
+  const hosts = db.collection('hosts');
   const { username, password } = req.body;
 
   try {
-    const admin = await admins.findOne({ username, password });
+    const host = await hosts.findOne({ username, password });
 
-    if (!admin) {
+    if (!host) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
-    // Create token if the admin was found
-    const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
+    // Create token if the host was found
+    const token = jwt.sign({ userId: host._id, role: 'host' }, secret, { expiresIn: '1h' });
 
-    res.json({ message: 'Admin authenticated successfully', accessToken: token });
+    res.json({ message: 'Host authenticated successfully', accessToken: token });
   } catch (error) {
-    console.error('Admin authentication error:', error);
+    console.error('Host authentication error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-// Dummy user data (replace with a proper authentication system)
-// const users = [
-//   { username: 'user1', password: 'password1' },
-//   { username: 'user2', password: 'password2' },
-// ];
-
-// // Routes
-// app.get('/', (req, res) => {
-//   res.render('login');
-// });
-
-// app.post('/admin/login', async (req, res) => {
-//   const admins = db.collection('admins');
-//   const { username, password } = req.body;
-
-//   const admin = await admins.findOne({ username, password });
-//   if (!admin) {
-//     return res.status(401).json({ error: 'Invalid username or password' });
-//   }
-
-//   // Create token if the admin was found
-//   const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
-
-//   res.json({ message: 'Admin authenticated successfully', accessToken: token });
-// });
-
-// ... (your existing code)
-
-// /**
-//  * @swagger
-//  * /login:
-//  *   post:
-//  *     summary: Admin login
-//  *     tags: [Admin]
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             required:
-//  *               - username
-//  *               - password
-//  *             properties:
-//  *               username:
-//  *                 type: string
-//  *               password:
-//  *                 type: string
-//  *     responses:
-//  *       200:
-//  *         description: Admin authenticated successfully
-//  *       401:
-//  *         description: Invalid username or password
-//  */
-
-// // index.js
-
-// // ... (your existing code)
-
-// // Routes
-// app.get('/', (req, res) => {
-//   res.render('login');
-// });
-
-// // Admin login page
-// app.get('/admin/login', (req, res) => {
-//   res.render('admin-login');
-// });
-
-// app.post('/admin/login', async (req, res) => {
-//   const admins = db.collection('admins');
-//   const { username, password } = req.body;
-
-//   const admin = await admins.findOne({ username, password });
-//   if (!admin) {
-//     return res.status(401).json({ error: 'Invalid username or password' });
-//   }
-
-//   // Create token if the admin was found
-//   const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
-
-//   res.json({ message: 'Admin authenticated successfully', accessToken: token });
-// });
-
-// ... (your existing code)
-
-// // Admin Login
-// app.post('/login', async (req, res) => {
-//   const admins = db.collection('admins');
-//   const { username, password } = req.body;
-
-//   const admin = await admins.findOne({ username, password });
-//   if (!admin) {
-//     return res.status(401).json({ error: 'Invalid username or password' });
-//   }
-
-//   // Create token if the admin was found
-//   const token = jwt.sign({ userId: admin._id, role: 'admin' }, secret, { expiresIn: '1h' });
-
-//   res.json({ message: 'Admin authenticated successfully', accessToken: token });
-// });
-
 
 
 /**
