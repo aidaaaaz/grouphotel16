@@ -14,53 +14,6 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const MongoURI = process.env.MONGODB_URI
 
-// Swagger set up
-// const swaggerOptions = {
-//   definition: {
-//     openapi: '3.0.0',
-//     info: {
-//       title: 'Hostel Visitor Management API',
-//       version: '1.0.0',
-//       description: 'This is a simple CRUD API application made with Express and documented with Swagger',
-//     },
-//     servers: [
-//       {
-//         url: 'https://hotel16.azurewebsites.net',
-//       },
-//     ],
-    
-//     components: {
-//       securitySchemes: {
-//         jwt:{
-// 					type: 'http',
-// 					scheme: 'bearer',
-// 					in: "header",
-// 					bearerFormat: 'JWT'
-//         },
-//       },
-//     },
-// 		security:[{
-// 			"jwt": []
-//   }]
-// },
-//   apis: ['./index.js'], // path to your API routes
-
-// };
-
-// const swaggerJSDoc = require('swagger-jsdoc');
-
-// // Define your options object first
-// const options = {
-//   definition: {
-//     openapi: '3.0.0',
-//     info: {
-//       title: 'My API',
-//       version: '1.0.0',
-//       description: 'Description of my API',
-//     },
-//   },
-//   apis: ['./index.js'], // Specify the paths to your route files
-// };
 
 const swaggerOptions = {
   definition: {
@@ -100,20 +53,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Set up middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.set('view engine', 'ejs');
-//app.set('view engine', 'ejs');
-// Update the views directory path
-//app.set('views', 'C:/Users/VAIO/Desktop/grouphotel16/view');
-//app.set('views', 'C:/Users/VAIO/Desktop/grouphotel16/view');
+app.set('view engine', 'ejs'); // Set the view engine to EJS
 
+console.log('Views directory:', path.join(__dirname, 'C:/Users/VAIO/Desktop/grouphotel16/view'));
 
-// ...
+// app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
+app.set('views', path.join(__dirname, 'C:/Users/VAIO/Desktop/grouphotel16/view'));
 
-app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
-//app.set('view engine', 'ejs');
-
-// Set the view engine to EJS
-app.set('view engine', 'ejs');
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
@@ -228,13 +174,6 @@ client.connect()
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
-// // Serve the admin login page
-// app.get('/admin/login', (req, res) => {
-//   res.sendFile(__dirname + '/admin-login.html');
-// });
-
-
-
 let db;
 let Visitorregistration;
 let adminuser;
@@ -348,23 +287,17 @@ app.post('/registeradmin', async (req, res) => {
  *         description: Invalid username or password
  */
 
-// // Serve the admin login page
-// app.get('/admin/login', (req, res) => {
-//   res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
-// });
-// Redirect to login page when accessing the root route
 
-app.get('/', (req, res) => {
-  res.redirect('/admin/login');
-});
+
 
 // Serve the admin login page
 app.get('/admin/login', (req, res) => {
   res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
 });
 
-
-
+app.get('/', (req, res) => {
+  res.redirect('/admin/login');
+});
 
 // Admin login
 app.post('/admin/login', async (req, res) => {
