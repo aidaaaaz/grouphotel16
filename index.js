@@ -59,7 +59,7 @@ console.log('Views directory:', path.join(__dirname, 'C:\Users\VAIO\Desktop\grou
 
 // app.set('views', path.join(__dirname, ''));
 app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
-
+app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
