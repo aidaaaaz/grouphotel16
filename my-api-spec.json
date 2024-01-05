@@ -549,6 +549,53 @@
         }
       }
     },
+    "/retrieveHostContact/{passId}": {
+      "get": {
+        "summary": "Retrieve the contact number of the host from a visitor pass",
+        "tags": [
+          "Pass"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "passId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The visitor pass ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact number retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hostContactNumber": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Only security can retrieve host contact number"
+          },
+          "404": {
+            "description": "Visitor pass not found"
+          }
+        }
+      }
+    },
     "/deletevisitor/{visitorId}": {
       "delete": {
         "summary": "Delete a visitor",
