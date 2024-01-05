@@ -293,7 +293,6 @@ const security = [];
 
 app.use(express.json());
 
-
 /**
  * @swagger
  * /registerhost:
@@ -309,10 +308,19 @@ app.use(express.json());
  *             required:
  *               - username
  *               - password
+ *               - name
+ *               - phoneNumber
+ *               - email
  *             properties:
  *               username:
  *                 type: string
  *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *               email:
  *                 type: string
  *     responses:
  *       201:
@@ -324,14 +332,18 @@ app.use(express.json());
 // Host Register New Account/ create
 app.post('/registerhost', verifySecurity, async (req, res) => {
   const hosts = db.collection('hosts');
-  const { username, password } = req.body;
+  const { username, password, name, phoneNumber, email } = req.body;
 
+  // Check if the username is already taken
   const existingHost = await hosts.findOne({ username });
   if (existingHost) {
     return res.status(400).json({ error: 'Host already exists' });
   }
 
-  await hosts.insertOne({ username, password });
+  // Insert the new host into the database
+  await hosts.insertOne({ username, password, name, phoneNumber, email });
+
+  // Respond with a success message
   res.status(201).json({ message: 'Host registered successfully' });
 });
 
