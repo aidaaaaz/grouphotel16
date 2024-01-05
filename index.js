@@ -7,6 +7,7 @@ const { ObjectId } = require('mongodb'); // Import ObjectId
 //const port = 2000;
 const port = process.env.PORT || 2000 ;
 const ejs = require('ejs');
+const path = require('path');
 
 
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -103,19 +104,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //app.set('view engine', 'ejs');
 // Update the views directory path
 //app.set('views', 'C:/Users/VAIO/Desktop/grouphotel16/view');
-app.set('views', 'C:/Users/VAIO/Desktop/grouphotel16/view');
+//app.set('views', 'C:/Users/VAIO/Desktop/grouphotel16/view');
+
+
+// ...
+
+app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
+//app.set('view engine', 'ejs');
 
 // Set the view engine to EJS
 app.set('view engine', 'ejs');
 
-// ... (your existing code)
-
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
-
-// Now, you can use the options object to generate the swaggerSpec
-//const swaggerSpec = swaggerJSDoc(options);
-//app.use('./index.js', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 const fs = require('fs');
@@ -362,6 +362,7 @@ app.get('/', (req, res) => {
 app.get('/admin/login', (req, res) => {
   res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
 });
+
 
 
 
