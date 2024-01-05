@@ -55,10 +55,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs'); // Set the view engine to EJS
 
-console.log('Views directory:', path.join(__dirname, 'C:/Users/VAIO/Desktop/grouphotel16/view'));
+console.log('Views directory:', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
 
-// app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
-app.set('views', path.join(__dirname, 'C:/Users/VAIO/Desktop/grouphotel16/view'));
+// app.set('views', path.join(__dirname, ''));
+app.set('views', path.join(__dirname, 'C:\Users\VAIO\Desktop\grouphotel16\view'));
 
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
