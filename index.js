@@ -336,7 +336,7 @@ app.use(express.json());
 // });
 
 // Host Register New Account
-app.post('/registerhost', verifyTokenSecurity, async (req, res) => {
+app.post('/registerhost', verifySecurity, async (req, res) => {
   const hosts = db.collection('hosts');
   const { username, password } = req.body;
 
@@ -549,7 +549,7 @@ app.post('/registervisitor', verifyToken, async (req, res) => {
 });
 
 // Security personnel register new visitor
-app.post('/registersecurityvisitor', verifyTokenSecurity, async (req, res) => {
+app.post('/registersecurityvisitor', verifySecurity, async (req, res) => {
   try {
     // Add logic to check if the requester is a valid security personnel
     const securityCollection = db.collection('security');
