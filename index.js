@@ -288,7 +288,7 @@ client.connect()
 // In-memory data storage (replace with a database in production)
 const visitors = [];
 //const admins = [];
-const hosts = [];
+const host = [];
 const security = [];
 
 app.use(express.json());
@@ -321,21 +321,7 @@ app.use(express.json());
  *         description: Host already exists
  */
 
-// Host Register New Account
-// app.post('/registerhost', async (req, res) => {
-//   const hosts = db.collection('hosts');
-//   const { username, password } = req.body;
-
-//   const existingHost = await hosts.findOne({ username });
-//   if (existingHost) {
-//     return res.status(400).json({ error: 'Host already exists' });
-//   }
-
-//   await hosts.insertOne({ username, password });
-//   res.status(201).json({ message: 'Host registered successfully' });
-// });
-
-// Host Register New Account
+// Host Register New Account/ create
 app.post('/registerhost', verifySecurity, async (req, res) => {
   const hosts = db.collection('hosts');
   const { username, password } = req.body;
@@ -417,6 +403,53 @@ app.post('/host/login', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /create/test/host:
+ *   post:
+ *     summary: Test route to create a host without security approval
+ *     tags: [Test]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Test host created successfully
+ *       400:
+ *         description: Host already exists
+ *       500:
+ *         description: An error occurred during the test
+ */
+
+// Test route to create a host without security approval
+app.post('/create/test/host', async (req, res) => {
+  const hosts = db.collection('hosts');
+  const { username, password } = req.body;
+
+  try {
+    const existingHost = await hosts.findOne({ username });
+    if (existingHost) {
+      return res.status(400).json({ error: 'Host already exists' });
+    }
+
+    await hosts.insertOne({ username, password });
+    res.status(201).json({ message: 'Test host created successfully' });
+  } catch (error) {
+    console.error('Test route error:', error);
+    res.status(500).json({ error: 'An error occurred during the test', details: error.message });
+  }
+});
 
 /**
  * @swagger

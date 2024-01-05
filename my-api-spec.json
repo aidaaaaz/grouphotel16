@@ -178,6 +178,47 @@
         }
       }
     },
+    "/create/test/host": {
+      "post": {
+        "summary": "Test route to create a host without security approval",
+        "tags": [
+          "Test"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Test host created successfully"
+          },
+          "400": {
+            "description": "Host already exists"
+          },
+          "500": {
+            "description": "An error occurred during the test"
+          }
+        }
+      }
+    },
     "/registersecurity": {
       "post": {
         "summary": "Register a new admin account",
