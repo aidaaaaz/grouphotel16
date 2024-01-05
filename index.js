@@ -291,13 +291,22 @@ app.post('/registeradmin', async (req, res) => {
 
 
 // Serve the admin login page
-app.get('/admin/login', (req, res) => {
-  res.render('admin-login'); // Assuming 'admin-login.ejs' is in the 'views' folder
+app.get('/login', (req, res) => {
+  res.render('login'); // Assuming 'admin-login.ejs' is in the 'views' folder
 });
 
-app.get('/', (req, res) => {
-  res.redirect('/admin/login');
+// Serve the login page
+app.get('/login', (req, res) => {
+  res.render('login'); // Assuming 'login.ejs' is in the 'views' folder
 });
+
+// app.get('/', (req, res) => {
+//   res.redirect('/login');
+// });
+
+// app.get('/', (req, res) => {
+//   res.redirect('/login');
+// });
 
 // Admin login
 app.post('/admin/login', async (req, res) => {
