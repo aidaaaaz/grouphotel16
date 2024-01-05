@@ -77,6 +77,79 @@ fs.writeFileSync(Desktop, swaggerJson); // Use 'swaggerYaml' for YAML
 
 console.log(`Swagger specification saved to ${Desktop}`);
 
+
+// //verifyToken
+// const verifyToken = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return res.status(403).json({ error: 'No token provided' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+
+//   try {
+//     const decoded = jwt.verify(token, secret);
+//     req.user = decoded;
+
+//     // Check if the user has the required role (admin or security)
+//     if (req.user.role !== 'host' && req.user.role !== 'security') {
+//       return res.status(403).json({ error: 'Insufficient permissions' });
+//     }
+
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ error: 'Failed to authenticate token' });
+//   }
+// };
+
+// //verifyTokenSecurity
+// const verifyTokenSecurity = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return res.status(403).json({ error: 'No token provided' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+//   try {
+//     const decoded = jwt.verify(token, secret);
+//     console.log(decoded); // Log the decoded token payload
+//     req.user = decoded;
+
+//     // Check if the user has the required role (security)
+//     if (req.user.role !== 'security') {
+//       return res.status(403).json({ error: 'Insufficient permissions' });
+//     }
+
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ error: 'Failed to authenticate token' });
+//   }
+// };
+
+// const verifyTokenSecurity = (req, res, next) => {
+//   const authHeader = req.headers.authorization;
+//   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//     return res.status(403).json({ error: 'No token provided' });
+//   }
+
+//   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+//   try {
+//     const decoded = jwt.verify(token, secret);
+//     console.log(decoded); // Log the decoded token payload
+//     req.user = decoded;
+
+//     // Check if the user has the required role (security)
+//     if (req.user.role !== 'security') {
+//       return res.status(403).json({ error: 'Insufficient permissions' });
+//     }
+
+//     next();
+//   } catch (error) {
+//     return res.status(401).json({ error: 'Failed to authenticate token' });
+//   }
+// };
+
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -90,7 +163,7 @@ const verifyToken = (req, res, next) => {
     const decoded = jwt.verify(token, secret);
     req.user = decoded;
 
-    // Check if the user has the required role (admin or security)
+    // Check if the user has the required role (host or security)
     if (req.user.role !== 'host' && req.user.role !== 'security') {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
@@ -101,17 +174,17 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-
-const verifyTokenSecurity = (req, res, next) => {
+const verifySecurity = (req, res, next) => {
   const authHeader = req.headers.authorization;
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(403).json({ error: 'No token provided' });
   }
 
   const token = authHeader.split(' ')[1]; // Expecting "Bearer TOKEN_STRING"
+
   try {
     const decoded = jwt.verify(token, secret);
-    console.log(decoded); // Log the decoded token payload
     req.user = decoded;
 
     // Check if the user has the required role (security)
@@ -125,6 +198,19 @@ const verifyTokenSecurity = (req, res, next) => {
   }
 };
 
+// Security personnel register host
+app.post('/registersecurityhost', verifySecurity, async (req, res) => {
+  const hosts = db.collection('hosts');
+  const { username, password } = req.body;
+
+  const existingHost = await hosts.findOne({ username });
+  if (existingHost) {
+    return res.status(400).json({ error: 'Host already exists' });
+  }
+
+  await hosts.insertOne({ username, password });
+  res.status(201).json({ message: 'Host registered successfully' });
+});
 
 
 app.use(bodyParser.json());
@@ -236,7 +322,21 @@ app.use(express.json());
  */
 
 // Host Register New Account
-app.post('/registerhost', async (req, res) => {
+// app.post('/registerhost', async (req, res) => {
+//   const hosts = db.collection('hosts');
+//   const { username, password } = req.body;
+
+//   const existingHost = await hosts.findOne({ username });
+//   if (existingHost) {
+//     return res.status(400).json({ error: 'Host already exists' });
+//   }
+
+//   await hosts.insertOne({ username, password });
+//   res.status(201).json({ message: 'Host registered successfully' });
+// });
+
+// Host Register New Account
+app.post('/registerhost', verifyTokenSecurity, async (req, res) => {
   const hosts = db.collection('hosts');
   const { username, password } = req.body;
 
@@ -248,7 +348,6 @@ app.post('/registerhost', async (req, res) => {
   await hosts.insertOne({ username, password });
   res.status(201).json({ message: 'Host registered successfully' });
 });
-
 
 // Serve the admin login page
 app.get('/login', (req, res) => {

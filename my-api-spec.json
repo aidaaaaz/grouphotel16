@@ -87,11 +87,11 @@
     }
   ],
   "paths": {
-    "/registeradmin": {
+    "/registerhost": {
       "post": {
-        "summary": "Register a new admin account",
+        "summary": "Register a new host account",
         "tags": [
-          "Admin"
+          "Host"
         ],
         "requestBody": {
           "required": true,
@@ -117,19 +117,19 @@
         },
         "responses": {
           "201": {
-            "description": "Admin registered successfully"
+            "description": "Host registered successfully"
           },
           "400": {
-            "description": "Admin already exists"
+            "description": "Host already exists"
           }
         }
       }
     },
-    "/admin/login": {
+    "/host/login": {
       "post": {
-        "summary": "Admin login",
+        "summary": "Host login",
         "tags": [
-          "Admin"
+          "Host"
         ],
         "requestBody": {
           "required": true,
@@ -155,7 +155,7 @@
         },
         "responses": {
           "200": {
-            "description": "Admin authenticated successfully",
+            "description": "Host authenticated successfully",
             "content": {
               "application/json": {
                 "schema": {
