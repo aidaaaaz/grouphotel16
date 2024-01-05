@@ -414,6 +414,51 @@ app.post('/host/login', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+/**
+ * @swagger
+ * /updateHostContact:
+ *   put:
+ *     summary: Update contact number for a host (security only)
+ *     tags: [Host]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: newPhoneNumber
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Contact number updated successfully
+ *       401:
+ *         description: Unauthorized - Only security can update contact number
+ *       404:
+ *         description: Host not found
+ */
+
+// Update Host Contact Number (security only)
+app.put('/updateHostContact', verifyToken, verifySecurity, async (req, res) => {
+  const hosts = db.collection('hosts');
+  const { username, newPhoneNumber } = req.query;
+
+  // Check if the host exists
+  const existingHost = await hosts.findOne({ username });
+  if (!existingHost) {
+    return res.status(404).json({ error: 'Host not found' });
+  }
+
+  // Update the contact number for the host
+  await hosts.updateOne({ username }, { $set: { phoneNumber: newPhoneNumber } });
+
+  // Respond with a success message
+  res.status(200).json({ message: 'Contact number updated successfully' });
+});
 
 /**
  * @swagger
