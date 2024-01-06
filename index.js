@@ -895,8 +895,7 @@ app.get('/retrievepass/:visitorId', async (req, res) => {
 //     res.status(500).json({ error: 'An error occurred while retrieving the host contact number', details: error.message });
 //   }
 // });
-
-app.get('/retrieveHostContact/:passId', verifyToken, async (req, res) => {
+app.get('/retrieveHostContact/:passId', verifySecurity, async (req, res) => {
   try {
     // Check if the requester is a valid security personnel
     const { username } = req.user;
@@ -906,22 +905,24 @@ app.get('/retrieveHostContact/:passId', verifyToken, async (req, res) => {
       return res.status(403).json({ error: 'Unauthorized. Not a valid security personnel.' });
     }
 
-    const hosts = db.collection('hosts');
-    const passId = req.params.passId;
+    // The rest of your code to retrieve host contact number...
+    // The rest of your code to retrieve host contact number...
+const hosts = db.collection('hosts');
+const passId = req.params.passId;
 
-    // Find the visitor pass
-    const visitorPass = await db.collection('visitorpasses').findOne({ _id: new ObjectId(passId) });
+// Find the visitor pass
+const visitorPass = await db.collection('visitorpasses').findOne({ _id: new ObjectId(passId) });
 
-    if (!visitorPass) {
-      return res.status(404).json({ error: 'Visitor pass not found' });
-    }
+if (!visitorPass) {
+  return res.status(404).json({ error: 'Visitor pass not found' });
+}
 
-    // Retrieve host contact number
-    const host = await hosts.findOne({ _id: new ObjectId(visitorPass.issuedBy) });
+// Retrieve host contact number
+const host = await hosts.findOne({ _id: new ObjectId(visitorPass.issuedBy) });
 
-    if (!host) {
-      return res.status(404).json({ error: 'Host not found for this visitor pass' });
-    }
+if (!host) {
+  return res.status(404).json({ error: 'Host not found for this visitor pass' });
+}
 
     // Respond with the host's contact number
     res.json({ hostContactNumber: host.phoneNumber });
@@ -930,6 +931,41 @@ app.get('/retrieveHostContact/:passId', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'An error occurred while retrieving the host contact number', details: error.message });
   }
 });
+
+// app.get('/retrieveHostContact/:passId', verifySecurity, async (req, res) => {
+//   try {
+//     // Check if the requester is a valid security personnel
+//     const { username } = req.user;
+//     const validSecurity = await db.collection('security').findOne({ username });
+
+//     if (!validSecurity) {
+//       return res.status(403).json({ error: 'Unauthorized. Not a valid security personnel.' });
+//     }
+
+//     const hosts = db.collection('hosts');
+//     const passId = req.params.passId;
+
+//     // Find the visitor pass
+//     const visitorPass = await db.collection('visitorpasses').findOne({ _id: new ObjectId(passId) });
+
+//     if (!visitorPass) {
+//       return res.status(404).json({ error: 'Visitor pass not found' });
+//     }
+
+//     // Retrieve host contact number
+//     const host = await hosts.findOne({ _id: new ObjectId(visitorPass.issuedBy) });
+
+//     if (!host) {
+//       return res.status(404).json({ error: 'Host not found for this visitor pass' });
+//     }
+
+//     // Respond with the host's contact number
+//     res.json({ hostContactNumber: host.phoneNumber });
+//   } catch (error) {
+//     console.error('Retrieve Host Contact Number Error:', error.message);
+//     res.status(500).json({ error: 'An error occurred while retrieving the host contact number', details: error.message });
+//   }
+// });
 
 //Update visitor
 app.patch('/updatevisitor/:visitorId', verifyToken, async (req, res) => {
