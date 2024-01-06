@@ -858,27 +858,62 @@ app.get('/retrievepass/:visitorId', async (req, res) => {
  *         description: Visitor pass not found
  */
 
-// Retrieve Host Contact Number from Visitor Pass (security only)
-app.get('/retrieveHostContact/:passId', verifyToken, verifySecurity, async (req, res) => {
-  const visitorPasses = db.collection('visitorpasses');
-  const hosts = db.collection('hosts');
+// // Retrieve Host Contact Number from Visitor Pass (security only)
+// app.get('/retrieveHostContact/:passId', verifyToken, verifySecurity, async (req, res) => {
+//   const visitorPasses = db.collection('visitorpasses');
+//   const hosts = db.collection('hosts');
 
-  const passId = req.params.passId;
+//   const passId = req.params.passId;
 
+//   try {
+//     // Find the visitor pass
+//     const visitorPass = await visitorPasses.findOne({ _id: new ObjectId(passId) });
+
+//     if (!visitorPass) {
+//       return res.status(404).json({ error: 'Visitor pass not found' });
+//     }
+
+//     // Check if the requester is a valid security personnel
+//     const { username } = req.user;
+//     const validSecurity = await db.collection('security').findOne({ username });
+
+//     if (!validSecurity) {
+//       return res.status(403).json({ error: 'Unauthorized. Not a valid security personnel.' });
+//     }
+
+//     // security Retrieve host contact number from visitor pass 
+//     const host = await hosts.findOne({ _id: new ObjectId(visitorPass.issuedBy) });
+
+//     if (!host) {
+//       return res.status(404).json({ error: 'Host not found for this visitor pass' });
+//     }
+
+//     // Respond with the host's contact number
+//     res.json({ hostContactNumber: host.phoneNumber });
+//   } catch (error) {
+//     console.error('Retrieve Host Contact Number Error:', error.message);
+//     res.status(500).json({ error: 'An error occurred while retrieving the host contact number', details: error.message });
+//   }
+// });
+
+app.get('/retrieveHostContact/:passId', verifyToken, async (req, res) => {
   try {
-    // Find the visitor pass
-    const visitorPass = await visitorPasses.findOne({ _id: new ObjectId(passId) });
-
-    if (!visitorPass) {
-      return res.status(404).json({ error: 'Visitor pass not found' });
-    }
-
     // Check if the requester is a valid security personnel
     const { username } = req.user;
     const validSecurity = await db.collection('security').findOne({ username });
 
     if (!validSecurity) {
       return res.status(403).json({ error: 'Unauthorized. Not a valid security personnel.' });
+    }
+
+    const hosts = db.collection('hosts');
+    const passId = req.params.passId;
+
+    // Find the visitor pass
+    const visitorPass = await db.collection('visitorpasses').findOne({ _id: new ObjectId(passId) });
+
+    if (!visitorPass) {
+      return res.status(404).json({ error: 'Visitor pass not found' });
     }
 
     // Retrieve host contact number
